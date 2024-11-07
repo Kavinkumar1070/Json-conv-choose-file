@@ -1,0 +1,8 @@
+fastapi 
+uvicorn 
+GitPython
+groq
+python-multipart
+sqlalchemy
+google-generativeai
+jinja2

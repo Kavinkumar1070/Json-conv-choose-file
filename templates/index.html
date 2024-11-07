@@ -10,43 +10,33 @@
 <body>
     <div class="container">
         <!-- Single screen for routes and inputs -->
-
-        
         <div class="routes-container">
             <!-- Route 1 - Cloned Project -->
             <div class="route-panel">
                 <h3>Cloned Project</h3>
-
-                <!-- File Type Input before first route button -->
                 <label for="file-type">Enter file extension (e.g., .py, .ts):</label>
                 <input type="text" id="file-type" placeholder=".py, .ts" />
-
-                <!-- First Route Button -->
                 <button onclick="loadFiles('cloned_project')">Load Files</button>
             </div>
 
             <!-- Route 2 - Routers -->
             <div class="route-panel">
                 <h3>Routers</h3>
-
-                <!-- File Names Input before second route button -->
-                <label for="file-names-routers">Enter file names (comma separated, e.g., file1.ts, file2.py):</label>
-                <input type="text" id="file-names-routers" placeholder="file1.ts, file2.py" />
-
-                <!-- Second Route Button -->
+                <label for="file-names-schemas">Load button to view files in Routers</label> 
                 <button onclick="loadFiles('routers')">Load Files</button>
+                <label for="file-names-routers">Enter file names Below:</label>
+                <input type="text" id="file-names-routers" placeholder="Provide the file path file1.ts, file2.py" />
+                <button onclick="postFiles('routers')">Post Files to Routers</button> <!-- New button -->
             </div>
 
             <!-- Route 3 - Schemas -->
             <div class="route-panel">
                 <h3>Schemas</h3>
-
-                <!-- File Names Input before third route button -->
-                <label for="file-names-schemas">Enter file names (comma separated, e.g., file1.ts, file2.py):</label>
-                <input type="text" id="file-names-schemas" placeholder="file1.ts, file2.py" />
-
-                <!-- Third Route Button -->
+                <label for="file-names-schemas">Load button to view files in Schemas</label>                
                 <button onclick="loadFiles('schemas')">Load Files</button>
+                <label for="file-names-schemas">Enter file names Below:</label> 
+                <input type="text" id="file-names-schemas" placeholder="Provide the file path file1.ts, file2.py"" />
+                <button onclick="postFiles('schemas')">Post Files to Schemas</button> <!-- New button -->
             </div>
         </div>
 
@@ -71,7 +61,6 @@
             let fileExtension = document.getElementById("file-type").value.trim();
             let fileNames = [];
 
-            // Get file names from appropriate input field based on route
             if (routeName === 'cloned_project') {
                 fileNames = []; // No file names needed for cloned project
             } else if (routeName === 'routers') {
@@ -80,7 +69,6 @@
                 fileNames = document.getElementById("file-names-schemas").value.trim().split(',');
             }
 
-            // Check if file type or names are provided
             if (routeName === "cloned_project" && fileExtension) {
                 fetchFiles(routeName, fileExtension); // Fetch files based on file extension for cloned_project
             } else if ((routeName === "routers" || routeName === "schemas") && fileNames.length > 0) {
@@ -101,12 +89,11 @@
                 document.getElementById("file-content").innerText = "Select a file to view its content.";
 
                 response.data.files.forEach((file) => {
-                    // Display file content relative to the Cloned_Project folder
                     let relativePath = file.split("Cloned_Project\\")[1];  // Extract content after 'Cloned_Project'
                     const listItem = document.createElement("button");
-                    listItem.innerText = relativePath;  // Show only the part after Cloned_Project
+                    listItem.innerText = relativePath;
                     listItem.onclick = () => {
-                        selectedFile = file;  // Keep the full path for loading file content
+                        selectedFile = file; 
                         loadFileContent(file);
                     };
                     fileList.appendChild(listItem);
@@ -127,9 +114,9 @@
                 document.getElementById("file-content").innerText = "Select a file to view its content.";
 
                 response.data.files.forEach((file) => {
-                    const listItem = document.createElement("li");
-                    console.log('qwefvg')
-                    listItem.innerText = file;
+                    let relativePath = file.split("src\\")[1];  // Extract content after 'Cloned_Project'
+                    const listItem = document.createElement("button");
+                    listItem.innerText = relativePath;
                     listItem.onclick = () => {
                         selectedFile = file;
                         loadFileContent(file);
@@ -148,6 +135,29 @@
                 document.getElementById("file-content").innerText = response.data.content;
             } catch (error) {
                 console.error("Error loading file content:", error);
+            }
+        }
+
+        // Post the selected file names to the appropriate route (Routers/Schemas)
+        async function postFiles(routeName) {
+            let fileNames = [];
+
+            if (routeName === 'routers') {
+                fileNames = document.getElementById("file-names-routers").value.trim().split(',');
+            } else if (routeName === 'schemas') {
+                fileNames = document.getElementById("file-names-schemas").value.trim().split(',');
+            }
+
+            try {
+                if (fileNames.length > 0) {
+                    const response = await axios.post(`/copy-files-to-${routeName}`, { files: fileNames });
+                    alert(response.data.message); // Show success message
+                } else {
+                    alert("Please enter valid file names.");
+                }
+            } catch (error) {
+                console.error("Error posting files:", error);
+                alert("Error processing files.");
             }
         }
     </script>

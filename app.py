@@ -45,6 +45,17 @@ def read_file_content(file_path: str) -> str:
     except Exception as e:
         return f"Error reading file: {str(e)}"
 
+# Function to copy selected files to a specified folder
+def copy_selected_files(file_list: List[str], destination_folder: str):
+    if not os.path.exists(destination_folder):
+        os.makedirs(destination_folder)
+    
+    for file in file_list:
+        file_name = os.path.basename(file)
+        destination_path = os.path.join(destination_folder, file_name)
+        shutil.copy(file, destination_path)
+
+
 # Render the main page
 @app.get("/", response_class=HTMLResponse)
 async def get_index(request: Request):
@@ -65,16 +76,6 @@ async def get_file_content(file_path: str):
     content = read_file_content(file_path)
     return {"content": content}
 
-
-# Function to copy selected files to a specified folder
-def copy_selected_files(file_list: List[str], destination_folder: str):
-    if not os.path.exists(destination_folder):
-        os.makedirs(destination_folder)
-    
-    for file in file_list:
-        file_name = os.path.basename(file)
-        destination_path = os.path.join(destination_folder, file_name)
-        shutil.copy(file, destination_path)
 
 # Endpoint to copy selected files to the 'routers' folder
 @app.post("/copy-files-to-routers")
@@ -100,70 +101,3 @@ async def copy_files_to_schemas(files: List[str]):
 
 
 
-
-
-
-
-# from fastapi import FastAPI, HTTPException
-# from typing import List
-# import os
-# import shutil
-
-# app = FastAPI()
-
-# cwd = os.getcwd()
-# source_folder = os.path.join(cwd, "Cloned_Project")
-# routers_destination = os.path.join(cwd, "src", "routers")
-# schemas_destination = os.path.join(cwd, "src", "schemas")
-
-# # Function to list files with a specific extension in the source folder
-# def list_files(folder_path: str, file_extension: str) -> List[str]:
-#     all_files = []
-#     for root, dirs, files in os.walk(folder_path):
-#         for file in files:
-#             if file.endswith(file_extension):
-#                 file_path = os.path.join(root, file)
-#                 all_files.append(file_path)
-#     return all_files
-
-# # Function to copy selected files to a specified folder
-# def copy_selected_files(file_list: List[str], destination_folder: str):
-#     if not os.path.exists(destination_folder):
-#         os.makedirs(destination_folder)
-    
-#     for file in file_list:
-#         file_name = os.path.basename(file)
-#         destination_path = os.path.join(destination_folder, file_name)
-#         shutil.copy(file, destination_path)
-
-# # Endpoint to list files in the source folder with a specific extension
-# @app.get("/list-available-files")
-# async def list_files_endpoint(file_extension: str):
-#     if not os.path.exists(source_folder):
-#         raise HTTPException(status_code=404, detail="Source folder not found")
-#     files = list_files(source_folder, file_extension)
-#     return {"files": files}
-
-# # Endpoint to copy selected files to the 'routers' folder
-# @app.post("/copy-files-to-routers")
-# async def copy_files_to_routers(files: List[str]):
-#     if not os.path.exists(routers_destination):
-#         os.makedirs(routers_destination)
-#     try:
-#         copy_selected_files(files, routers_destination)
-#         return {"message": f"Copied {len(files)} files to '{routers_destination}'"}
-#     except Exception as e:
-#         raise HTTPException(status_code=500, detail=str(e))
-
-# # Endpoint to copy selected files to the 'schemas' folder
-# @app.post("/copy-files-to-schemas")
-# async def copy_files_to_schemas(files: List[str]):
-#     if not os.path.exists(schemas_destination):
-#         os.makedirs(schemas_destination)
-#     try:
-#         copy_selected_files(files, schemas_destination)
-#         return {"message": f"Copied {len(files)} files to '{schemas_destination}'"}
-#     except Exception as e:
-#         raise HTTPException(status_code=500, detail=str(e))
-
-# # Run with: uvicorn main:app --reload
