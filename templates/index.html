@@ -1,13 +1,14 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>File Management UI</title>
     <link rel="stylesheet" href="../static/style.css">
     <!-- Add Font Awesome CDN link in your <head> section -->
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
-
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
     <style>
         /* Style the drop zones for files */
@@ -20,76 +21,82 @@
             background-color: #f9f9f9;
             cursor: pointer;
         }
+
         .drop-zone.dragover {
             border-color: #007bff;
             background-color: #e9f7ff;
         }
     </style>
 </head>
+
 <body>
     <div class="container">
         <!-- Single screen for routes and inputs -->
         <div class="routes-container">
             <h3>Routers</h3>
             <!-- Route 1 - Cloned Project -->
-            <div class="route-panel">
-                <h3>Cloned Project</h3>
-                <label for="file-type">Enter file extension (e.g., .py, .ts):</label>
+            <div class="route-panel ">
+                <h2>Cloned Project</h2>
+                <label for="file-type">Enter File Type : </label>
                 <input type="text" id="file-type" placeholder=".py, .ts" />
                 <button onclick="loadFiles('cloned_project')">Load Files</button>
             </div>
 
             <!-- Route 2 - Routers -->
-            <div class="route-panel">
-                <h3>Routers</h3>
-                
-                <div >
+            <div class="routerscontainer route-panel hidden" >
+                <h2>Routers</h2>
+
+                <div>
                     <ul class="data-show1">
 
                     </ul>
                 </div>
                 <div class="drop-zone" id="drop-zone-routers">
-                    Click to drag file names here
+                    drag & drop the filenames here
                 </div>
                 <button onclick="postFiles('routers')">Post Files to Routers</button> <!-- New button -->
                 <button onclick="loadFiles('routers')">Load Files</button>
             </div>
 
             <!-- Route 3 - Schemas -->
-            <div class="route-panel">
-                <h3>Schemas</h3>
-                <div >
+            <div class="schemascontainer route-panel hidden">
+                <h2>Schemas</h2>
+                <div>
                     <ul class="data-show2"> </ul>
                 </div>
                 <div class="drop-zone" id="drop-zone-schemas">
-                    Click to drag file names here
+                    drag & drop the filenames here
                 </div>
-                <button onclick="postFiles('schemas')">Post Files to Schemas</button> <!-- New button -->             
+                <button onclick="postFiles('schemas')">Post Files to Schemas</button> <!-- New button -->
                 <button onclick="loadFiles('schemas')">Load Files</button>
             </div>
         </div>
 
         <!-- File List Panel -->
-        
-        <div class="panel">
+
+        <div class="filesnames panel">
             <h3>Files Names</h3>
-            <h2>Files</h2>
             <ul id="file-list"></ul>
         </div>
 
         <!-- File Content Panel -->
         <div class="panel">
-            <h3>File Data</h3>
-            <h2>File Content</h2>
+            <h3>File Content</h3>
             <pre id="file-content">Select a file to view its content.</pre>
         </div>
     </div>
 
     <script>
+
+
+
+        const routesContainer = document.querySelector('.routerscontainer')
+        const schemasContainer = document.querySelector('.schemascontainer')
+
         let selectedFile = ""; // Stores the currently selected file path
         let fileNames = [];
-        let routefiles  = [];
-        let schemasfiles  = [];
+        let routefiles = [];
+        let schemasfiles = [];
         // Load files for a specific route and extension
         async function getFilesStored(routeName) {
             try {
@@ -101,11 +108,11 @@
                 return []; // Return an empty array in case of error
             }
         }
-        
+
         async function loadFiles(routeName) {
             let fileExtension = document.getElementById("file-type").value.trim();
             let fileNames = [];
-        
+
             if (routeName === 'cloned_project') {
                 fileNames = []; // No file names needed for cloned project
             } else if (routeName === 'routers') {
@@ -115,7 +122,7 @@
                 fileNames = await getFilesStored('schemas'); // Await the async call to get files
                 console.log("File names for schemas:", fileNames);
             }
-        
+
             if (routeName === "cloned_project" && fileExtension) {
                 fetchFiles(routeName, fileExtension); // Fetch files based on file extension for cloned_project
             } else if ((routeName === "routers" || routeName === "schemas") && fileNames.length > 0) {
@@ -124,17 +131,22 @@
                 alert("Please enter valid input.");
             }
         }
-        
+
         // Fetch and display files based on file extension for the "Cloned Project"
         async function fetchFiles(routeName, fileExtension) {
+            document.querySelector('.data-show1').classList.remove('hidden');
+            document.querySelector('.data-show2').classList.remove('hidden');
+            document.querySelector('.filesnames').classList.add('activate');
             try {
+                
                 const response = await fetch(`/api/list-files/${routeName}?file_extension=${encodeURIComponent(fileExtension)}`);
                 const data = await response.json();
-        
+
                 const fileList = document.getElementById("file-list");
                 fileList.innerHTML = ""; // Clear previous file list
                 document.getElementById("file-content").innerText = "Select a file to view its content.";
-        
+                routesContainer.classList.remove('hidden')
+                schemasContainer.classList.remove('hidden')
                 data.files.forEach((file) => {
                     let relativePath = file.split("Cloned_Project\\")[1]; // Extract content after 'Cloned_Project'
                     const listItem = document.createElement("button");
@@ -154,78 +166,104 @@
                 console.error("Error loading files:", error);
             }
         }
-        
+
         // This function fetches and processes file names (used for routers and schemas)
+
+
+
         async function fetchFilesByNames(routeName, fileNames) {
+            document.querySelector('.data-show1').classList.add('hidden');
+            document.querySelector('.data-show2').classList.add('hidden');
             try {
-                // If necessary, process the file names or pass them as parameters to your fetch request
-                const response = await fetch(`/api/list-files/${routeName}`, {
-                    method: 'POST', // If you need to use POST for file names
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify({ files: fileNames }), // Send the file names to the server
-                });
+                console.log(routeName);
+                console.log(fileNames);
+                const response = await fetch(`/api/list-files/${routeName}?file_names=${encodeURIComponent(fileNames.join(","))}`);
                 const data = await response.json();
-        
+            
                 const fileList = document.getElementById("file-list");
                 fileList.innerHTML = ""; // Clear previous file list
-        
+                document.getElementById("file-content").innerText = "Select a file to view its content.";
+            
                 data.files.forEach((file) => {
+                    let relativePath = file.split("src\\")[1];
+                    
+                    // Create the file item button
                     const listItem = document.createElement("button");
-                    listItem.innerText = file;
+                    listItem.innerText = relativePath;
                     listItem.onclick = () => {
                         selectedFile = file;
                         loadFileContent(file);
                     };
-                    fileList.appendChild(listItem);
+                    listItem.setAttribute('draggable', 'true');
+                    listItem.setAttribute('data-file', file);
+                    listItem.ondragstart = (event) => {
+                        event.dataTransfer.setData('text', file);
+                    };
+            
+                    // Create the "Remove" button with an icon
+                    const removeButton = document.createElement("button");
+                    removeButton.classList.add("remove-btn");
+            
+                    // Create an icon element (FontAwesome trash icon)
+                    const removeIcon = document.createElement("i");
+                    removeIcon.classList.add("fas", "fa-trash"); // FontAwesome trash icon
+            
+                    removeButton.appendChild(removeIcon); // Append the icon to the remove button
+            
+                    // Add click functionality to remove the file
+                    removeButton.onclick = (event) => {
+                        event.stopPropagation(); // Prevent triggering the file selection
+                        removeFile(file, container); // Call the remove function
+                    };
+            
+                    // Create a container for the file item and the remove button
+                    const container = document.createElement("div");
+                    container.classList.add("file-item-container");
+                    container.appendChild(listItem);
+                    container.appendChild(removeButton);
+            
+                    // Append the container to the file list
+                    fileList.appendChild(container);
                 });
             } catch (error) {
-                console.error("Error fetching files by names:", error);
+                console.error("Error loading files:", error);
             }
         }
         
-
-async function fetchFilesByNames(routeName, fileNames) {
-    try {
-        const response = await fetch(`/api/list-files/${routeName}?file_names=${encodeURIComponent(fileNames.join(","))}`);
-        const data = await response.json();
-
-        const fileList = document.getElementById("file-list");
-        fileList.innerHTML = ""; // Clear previous file list
-        document.getElementById("file-content").innerText = "Select a file to view its content.";
-
-        data.files.forEach((file) => {
-            let relativePath = file.split("src\\")[1];
-            const listItem = document.createElement("button");
-            listItem.innerText = relativePath;
-            listItem.onclick = () => {
-                selectedFile = file;
-                loadFileContent(file);
-            };
-            listItem.setAttribute('draggable', 'true');
-            listItem.setAttribute('data-file', file);
-            listItem.ondragstart = (event) => {
-                event.dataTransfer.setData('text', file);
-            };
-            fileList.appendChild(listItem);
-        });
-    } catch (error) {
-        console.error("Error loading files:", error);
-    }
-}
-
-
+        // Function to remove a file via the API
+        async function removeFile(fileName, listItem) {
+            console.log("Removing file...");
+            console.log(fileName);
+            try {
+                const encodedFilePath = encodeURIComponent(fileName);
+                const response = await fetch(`/api/delete-file/${encodedFilePath}`, {
+                    method: "DELETE",
+                    headers: {
+                        "Content-Type": "application/json"
+                    }
+                });
+            
+                if (response.ok) {
+                    listItem.remove(); // Remove the item from the DOM if deletion is successful
+                    console.log(`File ${fileName} removed successfully.`);
+                } else {
+                    console.error("Failed to remove file:", response.statusText);
+                }
+            } catch (error) {
+                console.error("Error removing file:", error);
+            }
+        }
+        
         // Load and display the content of a selected file
         async function loadFileContent(filePath) {
-    try {
-        const response = await fetch(`/api/get-file-content?file_path=${encodeURIComponent(filePath)}`);
-        const data = await response.json();
-        document.getElementById("file-content").innerText = data.content;
-    } catch (error) {
-        console.error("Error loading file content:", error);
-    }
-}
+            try {
+                const response = await fetch(`/api/get-file-content?file_path=${encodeURIComponent(filePath)}`);
+                const data = await response.json();
+                document.getElementById("file-content").innerText = data.content;
+            } catch (error) {
+                console.error("Error loading file content:", error);
+            }
+        }
 
         // Post the selected file names to the appropriate route (Routers/Schemas)
         async function postFiles(routeName) {
@@ -233,11 +271,15 @@ async function fetchFilesByNames(routeName, fileNames) {
             const fileNamesList = routeName === 'routers'
                 ? routefiles   // use routefiles if defined; otherwise, use an empty array
                 : schemasfiles
-            console.log("fileNamesList",fileNamesList)
+            console.log("fileNamesList", fileNamesList)
             const fileList = fileNamesList.map(item => item.replace(/\\/g, '/'));
 
             console.log("fileList", fileList);
-        
+            console.log('roro',routeName)
+            if(routeName == 'routers'){
+                document.querySelector('.data-show1').classList.remove('hidden');
+            }document.querySelector('.data-show2').classList.remove('hidden');
+
             try {
                 if (fileList.length > 0) {
                     console.log(`/copy-files-to-${routeName}`);
@@ -250,6 +292,11 @@ async function fetchFilesByNames(routeName, fileNames) {
                     });
                     const data = await response.json();
                     alert(data.message); // Show success message
+                    if(routeName == 'routers'){
+                        document.querySelector('.data-show1').classList.add('hidden');
+                    }else{
+                        document.querySelector('.data-show2').classList.add('hidden');
+                    }
                 } else {
                     alert("Please enter valid file names.");
                 }
@@ -258,30 +305,30 @@ async function fetchFilesByNames(routeName, fileNames) {
                 alert("Error processing files.");
             }
         }
-        
+
 
         // Handle drag-and-drop events
         function setupDragAndDrop() {
             const dropZones = ['drop-zone-routers', 'drop-zone-schemas'];
             dropZones.forEach(zoneId => {
                 const dropZone = document.getElementById(zoneId);
-
+        
                 dropZone.addEventListener('dragover', (event) => {
                     event.preventDefault();
                     dropZone.classList.add('dragover');
                 });
-
+        
                 dropZone.addEventListener('dragleave', () => {
                     dropZone.classList.remove('dragover');
                 });
-
+        
                 dropZone.addEventListener('drop', (event) => {
                     event.preventDefault();
                     dropZone.classList.remove('dragover');
-                
+        
                     // Get the dragged file names as an array
                     const draggedFiles = event.dataTransfer.getData('text').split(',');
-                
+        
                     // Check which drop zone we're in and update accordingly
                     if (zoneId === 'drop-zone-routers') {
                         const DataContainer = document.querySelector('.data-show1');
@@ -290,21 +337,27 @@ async function fetchFilesByNames(routeName, fileNames) {
                             if (!fileNames.includes(fileName)) {
                                 fileNames.push(fileName);
                                 routefiles.push(fileName);
-                                
+        
                                 // Create and append list item for each file
                                 const listItem = document.createElement('li');
                                 let relativePath = fileName.split("Cloned_Project\\")[1];
                                 listItem.textContent = relativePath;
-                                
-                                // Create the remove button
+        
+                                // Create the remove button with an icon
                                 const removeButton = document.createElement('button');
                                 removeButton.classList.add('removebutton');
-                                removeButton.textContent = "Remove";
+            
+                                // Create the icon element (FontAwesome trash icon)
+                                const removeIcon = document.createElement('i');
+                                removeIcon.classList.add('fas', 'fa-trash'); // FontAwesome trash icon
+            
+                                removeButton.appendChild(removeIcon); // Append the icon to the remove button
+            
                                 removeButton.onclick = () => removeFile(fileName, listItem, 'routers');
-                                
+        
                                 // Append the remove button to the list item
                                 listItem.appendChild(removeButton);
-                                
+        
                                 DataContainer.appendChild(listItem);
                             }
                         });
@@ -314,26 +367,32 @@ async function fetchFilesByNames(routeName, fileNames) {
                             if (!fileNames.includes(fileName)) {
                                 fileNames.push(fileName);
                                 schemasfiles.push(fileName);
-                                
+        
                                 // Create and append list item for each file
                                 const listItem = document.createElement('li');
                                 let relativePath = fileName.split("Cloned_Project\\")[1];
                                 listItem.textContent = relativePath;
-                                
-                                // Create the remove button
+        
+                                // Create the remove button with an icon
                                 const removeButton = document.createElement('button');
                                 removeButton.classList.add('removebutton');
-                                removeButton.textContent = "Remove";
+            
+                                // Create the icon element (FontAwesome trash icon)
+                                const removeIcon = document.createElement('i');
+                                removeIcon.classList.add('fas', 'fa-trash'); // FontAwesome trash icon
+            
+                                removeButton.appendChild(removeIcon); // Append the icon to the remove button
+            
                                 removeButton.onclick = () => removeFile(fileName, listItem, 'schemas');
-                                
+        
                                 // Append the remove button to the list item
                                 listItem.appendChild(removeButton);
-                                
+        
                                 DataContainer2.appendChild(listItem);
                             }
                         });
                     }
-                    
+        
                     // Remove file from the list and array
                     function removeFile(fileName, listItem, zone) {
                         // Remove from the respective array
@@ -348,17 +407,19 @@ async function fetchFilesByNames(routeName, fileNames) {
                                 schemasfiles.splice(index, 1); // Remove the file from schemasfiles
                             }
                         }
-                    
+        
                         // Remove the list item from the DOM
                         listItem.remove();
-                    }                    
+                    }
                 });
-                
+        
             });
         }
-
+        
         // Initialize drag-and-drop functionality
         setupDragAndDrop();
+        
     </script>
 </body>
+
 </html>

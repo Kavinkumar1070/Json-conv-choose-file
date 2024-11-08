@@ -76,7 +76,18 @@ async def get_file_content(file_path: str):
     content = read_file_content(file_path)
     return {"content": content}
 
-
+@app.delete("/api/delete-file/{file_path}")
+async def delete_file(file_path: str):
+    if not os.path.exists(file_path):
+        raise HTTPException(status_code=404, detail="File not found")
+    try:
+        os.remove(file_path)
+        return {"message": "File deleted successfully"}
+    except PermissionError:
+        raise HTTPException(status_code=403, detail="Permission denied")
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+    
 # Endpoint to copy selected files to the 'routers' folder
 @app.post("/copy-files-to-routers")
 async def copy_files_to_routers(files: List[str]):

@@ -1,5 +1,7 @@
+* {
+    font-family: 'Inter', sans-serif;
+}
 body {
-    font-family: Arial, sans-serif;
     margin: 0;
     padding: 0;
     display: flex;
@@ -7,15 +9,18 @@ body {
     align-items: center;
     padding-top: 60px;
     background-color: #ffff;
+    font-family: 'Inter', sans-serif;
 }
 
 .container {
+    font-family: 'Inter', sans-serif;
     display: grid;
     width: 100%;
     max-width: 90%;
-    grid-template-columns: 2fr 1fr 3fr;
+    grid-template-columns: 1fr 1fr 3fr;
     height: 80vh;
     background-color: #f4f4f9;
+    border-radius: 20px;
 }
 
 .panel {
@@ -25,14 +30,18 @@ body {
     background:#f4f4f9;
     border-right: 1px solid #ddd;
     border-left: 1px solid #ddd;
+    border-radius: 24px;
 }
 
 .panel:last-child {
     border-right: none;
     border-left: none;
 }
-
+.activate button {
+    width: 100%;
+}
 h2 {
+    font-family: 'Inter', sans-serif;
     margin-top: 0;
     font-size: 1.2em;
     color: #333;
@@ -43,12 +52,14 @@ button {
     width: 75%;
     padding: 10px;
     margin: 10px 0;
-    background-color: #007bff;
+    background-color: #1988ff;
     border: none;
     color: #fff;
     cursor: pointer;
     border-radius: 5px;
     transition: background-color 0.3s;
+    overflow-x: auto;
+    overflow-y: hidden;
 }
 
 button:hover {
@@ -82,28 +93,32 @@ pre {
     border: 1px solid #ddd;
     font-size: 14px;
     color: #333;
+    height: 583px;
+    overflow-y: auto;
 }
 .routes-container{
     padding: 10px;
 }
 
 .data-show1{
-    max-height: 159px;
+    max-height: 145px;
     overflow-y: auto;
     overflow-x: hidden;
 }
 .data-show2{
-    max-height: 159px;
+    max-height: 145px;
     overflow-y: auto;
     overflow-x: hidden;
 }
 .removebutton{
-    width: 66px;
-    height: 35px;
-    background-color: #ff6361;
+    width: 45px;
+    height: 32px;
+    background-color: transparent;
+    color: #f15860;
+    overflow: hidden;
 }
 .removebutton:hover{
-    background-color: #ffadad;
+    background-color: transparent;
 }
 .data-show1 li, .data-show2 li {
     display: flex;  /* Align items in a row */
@@ -118,6 +133,7 @@ pre {
     border: 1px solid #ddd;
     border-radius: 4px;
     cursor: pointer;
+    height: 25px;
 }
 
 .data-show2 li {
@@ -127,8 +143,112 @@ pre {
     border: 1px solid #ddd;
     border-radius: 4px;
     cursor: pointer;
+    height: 25px;
 }
 
+h3{
+    font-family: 'Inter', sans-serif;
+    text-align: center;
+}
 .data-show2 li:hover {
     background-color: #eee;
+}
+
+.route-panel>button {
+    display: block;
+    width: 100%;
+    padding: 10px;
+    margin: 10px 0;
+    background-color: #c258f1;
+    border: none;
+    color: #fff;
+    cursor: pointer;
+    border-radius: 5px;
+    transition: background-color 0.3s;
+}
+input[type=text] {
+    padding: 10px 9px;
+    opacity: 80%;
+    border-radius: 13px;
+    height: 16px;
+    background-color: white;
+    box-shadow: 0px 6px 8px rgba(0, 0, 0, 0.1);
+    border: 2px solid gray;
+    outline: none;
+    margin-top: 13px;
+}
+
+.hidden{
+    display: none;
+}
+.remove-btn{
+    width: 26px;
+    height: 35px;
+    background-color: skyblue;
+    overflow: hidden;
+}
+.file-item-container{
+    display: grid;
+    grid-template-columns: 5fr 32px;
+    gap: 10px;
+}
+/* Horizontal scrollbar */
+/* Scrollbar for both vertical and horizontal */
+::-webkit-scrollbar {
+    width: 6px;           /* Vertical scrollbar width */
+    height: 6px;          /* Horizontal scrollbar height */
+}
+
+/* Track Background */
+::-webkit-scrollbar-track {
+    background: #f1f1f1;  /* Color of the track */
+    border-radius: 10px;   /* Rounded corners */
+    background-color: transparent; /* Transparent background */
+}
+
+/* Scrollbar Thumb */
+::-webkit-scrollbar-thumb {
+    background: #eceff5;  /* Thumb color */
+    border-radius: 10px;  /* Rounded corners */
+}
+
+/* Scrollbar Thumb on Hover */
+::-webkit-scrollbar-thumb:hover {
+    background: #d0d4dc;  /* Darker color on hover */
+}
+
+/* Horizontal Scrollbar */
+::-webkit-scrollbar-horizontal {
+    height: 4px;           /* Set smaller height for horizontal scrollbar */
+}
+
+/* Horizontal Scrollbar Track */
+::-webkit-scrollbar-track-horizontal {
+    background: #f1f1f1;  /* Track color for horizontal scrollbar */
+    border-radius: 10px;   /* Rounded corners */
+}
+
+/* Horizontal Scrollbar Thumb */
+::-webkit-scrollbar-thumb-horizontal {
+    width: 4px;           /* Reduce width of the horizontal thumb */
+    background: #eceff5;   /* Thumb color */
+    border-radius: 10px;   /* Rounded corners */
+}
+
+/* Horizontal Scrollbar Thumb on Hover */
+::-webkit-scrollbar-thumb-horizontal:hover {
+    background: #d0d4dc;   /* Darker color on hover for horizontal */
+}
+::-webkit-scrollbar-track {
+    background: #f1f1f1;
+    border-radius: 10px;
+    padding: 45px; /* Padding inside the track */
+    box-sizing: content-box; /* Ensures padding doesn't affect the track size */
+}
+
+/* Adding margin around the scrollbar thumb */
+::-webkit-scrollbar-thumb {
+    background: #eceff5;
+    border-radius: 10px;
+    margin: 20px; /* Adds margin inside the thumb */
 }
