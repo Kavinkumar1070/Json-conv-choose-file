@@ -6,27 +6,30 @@ body {
     justify-content: center;
     align-items: center;
     padding-top: 60px;
-    background-color: #f4f4f9;
+    background-color: #ffff;
 }
 
 .container {
     display: grid;
     width: 100%;
     max-width: 90%;
-    grid-template-columns: 1fr 1fr 3fr;
+    grid-template-columns: 2fr 1fr 3fr;
     height: 80vh;
+    background-color: #f4f4f9;
 }
 
 .panel {
     flex: 1;
     padding: 20px;
     overflow-y: auto;
-    background: #fff;
+    background:#f4f4f9;
     border-right: 1px solid #ddd;
+    border-left: 1px solid #ddd;
 }
 
 .panel:last-child {
     border-right: none;
+    border-left: none;
 }
 
 h2 {
@@ -37,7 +40,7 @@ h2 {
 
 button {
     display: block;
-    width: 100%;
+    width: 75%;
     padding: 10px;
     margin: 10px 0;
     background-color: #007bff;
@@ -82,4 +85,50 @@ pre {
 }
 .routes-container{
     padding: 10px;
+}
+
+.data-show1{
+    max-height: 159px;
+    overflow-y: auto;
+    overflow-x: hidden;
+}
+.data-show2{
+    max-height: 159px;
+    overflow-y: auto;
+    overflow-x: hidden;
+}
+.removebutton{
+    width: 66px;
+    height: 35px;
+    background-color: #ff6361;
+}
+.removebutton:hover{
+    background-color: #ffadad;
+}
+.data-show1 li, .data-show2 li {
+    display: flex;  /* Align items in a row */
+    justify-content: space-between;  /* Distribute items with space between them */
+    align-items: center;  /* Vertically center the items */
+    gap:5px
+}
+.data-show1 li {
+    padding: 8px;
+    background-color: #f9f9f9;
+    margin: 5px 0;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+.data-show2 li {
+    padding: 8px;
+    background-color: #f9f9f9;
+    margin: 5px 0;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+.data-show2 li:hover {
+    background-color: #eee;
 }

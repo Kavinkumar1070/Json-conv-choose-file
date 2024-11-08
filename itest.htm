@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>File Management UI</title>
+    <link rel="stylesheet" href="../static/style.css">
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+    <style>
+        /* Style the drop zones for files */
+        .drop-zone {
+            border: 2px dashed #ccc;
+            padding: 20px;
+            margin-top: 10px;
+            width: 300px;
+            text-align: center;
+            background-color: #f9f9f9;
+            cursor: pointer;
+        }
+        .drop-zone.dragover {
+            border-color: #007bff;
+            background-color: #e9f7ff;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Single screen for routes and inputs -->
+        <div class="routes-container">
+            <!-- Route 1 - Cloned Project -->
+            <div class="route-panel">
+                <h3>Cloned Project</h3>
+                <label for="file-type">Enter file extension (e.g., .py, .ts):</label>
+                <input type="text" id="file-type" placeholder=".py, .ts" />
+                <button onclick="loadFiles('cloned_project')">Load Files</button>
+            </div>
+
+            <!-- Route 2 - Routers -->
+            <div class="route-panel">
+                <h3>Routers</h3>
+                <label for="file-names-routers">Load button to view files in Routers</label> 
+                <button onclick="loadFiles('routers')">Load Files</button>
+                <label for="file-names-routers">Enter file names Below:</label>
+                <input type="text" id="file-names-routers" readonly />
+                <div >
+                    <ul class="data-show1">
+
+                    </ul>
+                </div>
+                <div class="drop-zone" id="drop-zone-routers">
+                    Click to drag file names here
+                </div>
+                <button onclick="postFiles('routers')">Post Files to Routers</button> <!-- New button -->
+            </div>
+
+            <!-- Route 3 - Schemas -->
+            <div class="route-panel">
+                <h3>Schemas</h3>
+                <label for="file-names-schemas">Load button to view files in Schemas</label>                
+                <button onclick="loadFiles('schemas')">Load Files</button>
+                <label for="file-names-schemas">Enter file names Below:</label> 
+                <input type="text" id="file-names-schemas" readonly />
+                <div >
+                    <ul class="data-show2"> </ul>
+                </div>
+                <div class="drop-zone" id="drop-zone-schemas">
+                    Click to drag file names here
+                </div>
+                <button onclick="postFiles('schemas')">Post Files to Schemas</button> <!-- New button -->
+            </div>
+        </div>
+
+        <!-- File List Panel -->
+        <div class="panel">
+            <h2>Files</h2>
+            <ul id="file-list"></ul>
+        </div>
+
+        <!-- File Content Panel -->
+        <div class="panel">
+            <h2>File Content</h2>
+            <pre id="file-content">Select a file to view its content.</pre>
+        </div>
+    </div>
+
+    <script>
+        let selectedFile = ""; // Stores the currently selected file path
+        let fileNames = [];
+        // Load files for a specific route and extension
+        async function loadFiles(routeName) {
+            let fileExtension = document.getElementById("file-type").value.trim();
+            let fileNames = [];
+
+            if (routeName === 'cloned_project') {
+                fileNames = []; // No file names needed for cloned project
+            } else if (routeName === 'routers') {
+                fileNames = document.getElementById("file-names-routers").value.trim().split(',');
+            } else if (routeName === 'schemas') {
+                fileNames = document.getElementById("file-names-schemas").value.trim().split(',');
+            }
+
+            if (routeName === "cloned_project" && fileExtension) {
+                fetchFiles(routeName, fileExtension); // Fetch files based on file extension for cloned_project
+            } else if ((routeName === "routers" || routeName === "schemas") && fileNames.length > 0) {
+                fetchFilesByNames(routeName, fileNames); // Fetch files based on names for routers or schemas
+            } else {
+                alert("Please enter valid input.");
+            }
+        }
+
+        // Fetch and display files based on file extension for the "Cloned Project"
+        async function fetchFiles(routeName, fileExtension) {
+    try {
+        const response = await fetch(`/api/list-files/${routeName}?file_extension=${encodeURIComponent(fileExtension)}`);
+        const data = await response.json();
+
+        const fileList = document.getElementById("file-list");
+        fileList.innerHTML = ""; // Clear previous file list
+        document.getElementById("file-content").innerText = "Select a file to view its content.";
+
+        data.files.forEach((file) => {
+            let relativePath = file.split("Cloned_Project\\")[1]; // Extract content after 'Cloned_Project'
+            const listItem = document.createElement("button");
+            listItem.innerText = relativePath;
+            listItem.onclick = () => {
+                selectedFile = file;
+                loadFileContent(file);
+            };
+            listItem.setAttribute('draggable', 'true');
+            listItem.setAttribute('data-file', file); // Set the file path as a data attribute
+            listItem.ondragstart = (event) => {
+                event.dataTransfer.setData('text', file); // Set the file path as drag data
+            };
+            fileList.appendChild(listItem);
+        });
+    } catch (error) {
+        console.error("Error loading files:", error);
+    }
+}
+
+async function fetchFilesByNames(routeName, fileNames) {
+    try {
+        const response = await fetch(`/api/list-files/${routeName}?file_names=${encodeURIComponent(fileNames.join(","))}`);
+        const data = await response.json();
+
+        const fileList = document.getElementById("file-list");
+        fileList.innerHTML = ""; // Clear previous file list
+        document.getElementById("file-content").innerText = "Select a file to view its content.";
+
+        data.files.forEach((file) => {
+            let relativePath = file.split("src\\")[1];
+            const listItem = document.createElement("button");
+            listItem.innerText = relativePath;
+            listItem.onclick = () => {
+                selectedFile = file;
+                loadFileContent(file);
+            };
+            listItem.setAttribute('draggable', 'true');
+            listItem.setAttribute('data-file', file);
+            listItem.ondragstart = (event) => {
+                event.dataTransfer.setData('text', file);
+            };
+            fileList.appendChild(listItem);
+        });
+    } catch (error) {
+        console.error("Error loading files:", error);
+    }
+}
+
+
+        // Load and display the content of a selected file
+        async function loadFileContent(filePath) {
+    try {
+        const response = await fetch(`/api/get-file-content?file_path=${encodeURIComponent(filePath)}`);
+        const data = await response.json();
+        document.getElementById("file-content").innerText = data.content;
+    } catch (error) {
+        console.error("Error loading file content:", error);
+    }
+}
+
+        // Post the selected file names to the appropriate route (Routers/Schemas)
+        async function postFiles(routeName) {
+    const fileNamesList = routeName === 'routers'
+        ? document.querySelectorAll('.data-show1 li')
+        : document.querySelectorAll('.data-show2 li');
+
+    const fileList = Array.from(fileNamesList).map(item => item.textContent.replace(/\\/g, '/'));
+    
+    try {
+        if (fileList.length > 0) {
+            const response = await fetch(`/copy-files-to-${routeName}`, {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify({ files: fileList })
+            });
+            const data = await response.json();
+            alert(data.message); // Show success message
+        } else {
+            alert("Please enter valid file names.");
+        }
+    } catch (error) {
+        console.error("Error posting files:", error);
+        alert("Error processing files.");
+    }
+}
+
+
+        // Handle drag-and-drop events
+        function setupDragAndDrop() {
+            const dropZones = ['drop-zone-routers', 'drop-zone-schemas'];
+            dropZones.forEach(zoneId => {
+                const dropZone = document.getElementById(zoneId);
+
+                dropZone.addEventListener('dragover', (event) => {
+                    event.preventDefault();
+                    dropZone.classList.add('dragover');
+                });
+
+                dropZone.addEventListener('dragleave', () => {
+                    dropZone.classList.remove('dragover');
+                });
+
+                dropZone.addEventListener('drop', (event) => {
+                    event.preventDefault();
+                    dropZone.classList.remove('dragover');
+                
+                    // Get the dragged file names as an array
+                    const draggedFiles = event.dataTransfer.getData('text').split(',');
+                
+                    // Check which drop zone we're in and update accordingly
+                    if (zoneId === 'drop-zone-routers') {
+                        const DataContainer = document.querySelector('.data-show1');
+                        draggedFiles.forEach((fileName) => {
+                            // Avoid duplicates by checking if the item already exists
+                            if (!fileNames.includes(fileName)) {
+                                fileNames.push(fileName);
+                
+                                // Create and append list item for each file
+                                const listItem = document.createElement('li');
+                                listItem.textContent = fileName;
+                                DataContainer.append(listItem);
+                            }
+                        });
+                    } else if (zoneId === 'drop-zone-schemas') {
+                        const DataContainer2 = document.querySelector('.data-show2');
+                        draggedFiles.forEach((fileName) => {
+                            if (!fileNames.includes(fileName)) {
+                                fileNames.push(fileName);
+                
+                                // Create and append list item for each file
+                                const listItem = document.createElement('li');
+                                listItem.textContent = fileName;
+                                DataContainer2.append(listItem);
+                            }
+                        });
+                    }
+                });
+                
+            });
+        }
+
+        // Initialize drag-and-drop functionality
+        setupDragAndDrop();
+    </script>
+</body>
+</html>

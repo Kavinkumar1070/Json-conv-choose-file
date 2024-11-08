@@ -80,6 +80,7 @@ async def get_file_content(file_path: str):
 # Endpoint to copy selected files to the 'routers' folder
 @app.post("/copy-files-to-routers")
 async def copy_files_to_routers(files: List[str]):
+    print(files)
     if not os.path.exists(routers_destination):
         os.makedirs(routers_destination)
     try:
